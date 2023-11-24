@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"> -->
+    <link href="./normalize.css" rel="stylesheet">
+    <link href="./styles.css" rel="stylesheet">
+        <!-- Import style -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <!-- Import Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Import component library -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <title>WEB转PDF</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="tool">
+        <div class="config-grab-value">设置抓取内容</div>
+        <el-button type="success" @click="grab">抓取</el-button>
+        <el-button type="primary" @click="drawer = true">设置</el-button>
+      </div>
+      <el-drawer v-model="drawer" title="设置抓取内容参数" :with-header="false">
+        <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
+          <el-form-item label="登录地址" prop="site">
+            <el-input
+              v-model="formInline.site"
+              placeholder="请输入登录网址"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="抓取类型" prop="region">
+            <el-select
+              v-model="formInline.region"
+              placeholder="请选择抓取类型"
+              clearable
+            >
+              <el-option label="PDF" value="PDF" />
+              <el-option label="PNG" value="PNG" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit">开始</el-button>
+          </el-form-item>
+        </el-form>
+      </el-drawer>
+    </div>
+    <script>
+      const App = {
+        data() {
+          return {
+            drawer: false,
+            rules: {
+              site: [
+                { required: true, message: '请输入登录网址', trigger: 'blur' },
+              ],
+              region: [
+                { required: true, message: '请选择抓取类型', trigger: 'blur' },
+              ],
+            },
+            formInline: {
+              site: "",
+              region: ""
+            }
+          };
+        },
+        methods: {
+          onSubmit() {
+            const webview = document.getElementById('webview')
+            this.$refs.ruleFormRef.validate((valid, fields) => {
+              if (valid) {
+                webview.src = 'https://jd.com'
+                this.drawer = false
+              } else {
+                console.log('error submit!', fields)
+              }
+            })
+          },
+          grab() {
+            window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
+          }
+        }
+      };
+      const app = Vue.createApp(App);
+      app.use(ElementPlus);
+      app.mount("#app");
+    </script>
+    <div class="info">
+      <h1>Hello World!</h1>
+      We are using Node.js <span id="node-version"></span>,
+      Chromium <span id="chrome-version"></span>,
+      and Electron <span id="electron-version"></span>.
+    </div>
+    <webview class="webview" id="webview" disablewebsecurity src="https://www.baidu.com"></webview>
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+  </body>
+</html>

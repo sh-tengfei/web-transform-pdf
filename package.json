@@ -1,0 +1,27 @@
+{
+  "name": "web-transform-pdf",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "i": "PUPPETEER_PRODUCT=chrome npm i --verb",
+    "start": "electron ."
+  },
+  "repository": "git@github.com:sh-tengfei/web-transform-pdf.git",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^26.0.0"
+  },
+  "dependencies": {
+    "apify": "^3.1.13",
+    "puppeteer": "^18.0.0"
+  }
+}

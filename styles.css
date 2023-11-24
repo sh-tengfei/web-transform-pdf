@@ -1,0 +1,35 @@
+/* styles.css */
+.info{
+  display: none;
+}
+html{
+  height: 100vh;
+}
+/* Add styles here to customize the appearance of your app */
+#app{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.tool{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #f5f5ff;
+}
+.config-grab-value{
+  font-size: 16px;
+  color: #333;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.webview{
+  height: calc(100vh - 52px);
+}
