@@ -12,73 +12,91 @@
     <script src="https://unpkg.com/vue@3"></script>
     <!-- Import component library -->
     <script src="https://unpkg.com/element-plus"></script>
-    <title>WEB转PDF</title>
+    <title>Web转Pdf</title>
   </head>
   <body>
     <div id="app">
-      <div class="tool">
-        <div class="config-grab-value">设置抓取内容</div>
-        <el-button type="success" @click="grab">抓取</el-button>
-        <el-button type="primary" @click="drawer = true">设置</el-button>
+      <div class="title">
+        <div class="title-value">设置抓取内容</div>
+        <div class="tips">
+          node-v:<span id="node-version"></span>
+        </div>
+        <div class="tips">
+          chrome-v:<span id="chrome-version"></span>
+        </div>
+        <div class="tips">
+          electron-v:<span id="electron-version"></span>
+        </div>
       </div>
-      <el-drawer v-model="drawer" title="设置抓取内容参数" :with-header="false">
-        <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
-          <el-form-item label="登录地址" prop="site">
-            <el-input
-              v-model="formInline.site"
-              placeholder="请输入登录网址"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="抓取类型" prop="region">
-            <el-select
-              v-model="formInline.region"
-              placeholder="请选择抓取类型"
-              clearable
-            >
-              <el-option label="PDF" value="PDF" />
-              <el-option label="PNG" value="PNG" />
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onSubmit">开始</el-button>
-          </el-form-item>
-        </el-form>
-      </el-drawer>
+      <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
+        <el-form-item label="登录地址" prop="site">
+          <el-input
+            v-model="formInline.site"
+            placeholder="请输入登录网址:https?://"
+            clearable>
+        </el-input>
+        </el-form-item>
+        <el-form-item label="抓取类型" prop="type">
+          <el-select
+            v-model="formInline.type"
+            placeholder="请选择抓取类型"
+            clearable
+          >
+            <el-option v-for="(type, index) in types" :key="type.label" :label="type.label" :value="type.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSubmitGrasp" :disabled="disableGrasping">开始抓取</el-button>
+          <el-button type="success" @click="onDone" :disabled="!disableGrasping">完成</el-button>
+        </el-form-item>
+      </el-form>
     </div>
     <script>
       const App = {
         data() {
           return {
-            drawer: false,
+            types: [{
+              value: 'pdf',
+              label: 'PDF'
+            }],
             rules: {
               site: [
                 { required: true, message: '请输入登录网址', trigger: 'blur' },
+                {
+                  validator: (rule, value) => {
+                    return /https?:\/\//ig.test(value)
+                  },
+                  message: '格式不正确', trigger: 'blur'
+                }
               ],
-              region: [
+              type: [
                 { required: true, message: '请选择抓取类型', trigger: 'blur' },
               ],
             },
             formInline: {
               site: "",
-              region: ""
-            }
+              type: "pdf"
+            },
+            grasping: false
           };
         },
         methods: {
-          onSubmit() {
-            const webview = document.getElementById('webview')
+          onSubmitGrasp() {
             this.$refs.ruleFormRef.validate((valid, fields) => {
               if (valid) {
-                webview.src = 'https://jd.com'
-                this.drawer = false
-              } else {
-                console.log('error submit!', fields)
+                window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
+                this.grasping = true
               }
             })
           },
-          grab() {
-            window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
+          onDone() {
+            window.electronAPI.setSaveValue()
+            this.grasping = false
+          }
+        },
+        computed: {
+          disableGrasping() {
+            return this.grasping
           }
         }
       };
@@ -92,7 +110,6 @@
       Chromium <span id="chrome-version"></span>,
       and Electron <span id="electron-version"></span>.
     </div>
-    <webview class="webview" id="webview" disablewebsecurity src="https://www.baidu.com"></webview>
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
   </body>

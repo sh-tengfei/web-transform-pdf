@@ -4,12 +4,12 @@ const path = require('node:path')
 const puppeteer = require('puppeteer');
 
 function createWindow () {
-  // Create the browser window.
+  // Create base browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    headless: false,
+    width: 500,
+    height: 300,
     ignoreHTTPSErrors: true,
+    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false,
@@ -27,16 +27,25 @@ function createWindow () {
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-async function handleSetGrabValue (e) {
+const pdfList = []
+let browser = null
+
+async function handleSetGrabValue (e, value) {
+  const data = JSON.parse(value)
  // 打开一个浏览器实例
- const browser = await puppeteer.launch({ headless: false });
+ browser = await puppeteer.launch({ headless: false });
 
  // 创建一个空白页面
  const page = await browser.newPage();
  // 访问百度首页，并等待页面加载完成
- await page.goto('https://www.baidu.com/', { waitUntil: 'networkidle0' });
+ await page.goto(data.site, { waitUntil: 'networkidle0' });
  // 将页面保存为pdf格式
- await page.pdf({ path: 'baidu.pdf', format: 'A4' });
+ const pdf = await page.pdf({ path: data.site.replace(/https?:\/\//ig, '').replace('/', '.pdf'), format: 'A4' });
+ pdfList.push(pdf)
+ console.log(pdfList)
+}
+
+async function handleSetSaveValue() {
  // 关闭浏览器实例
  await browser.close();
 }
@@ -47,6 +56,7 @@ async function handleSetGrabValue (e) {
 app.whenReady().then(() => {
   createWindow()
   ipcMain.on('set-grab-value', handleSetGrabValue)
+  ipcMain.on('set-save-value', handleSetSaveValue)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

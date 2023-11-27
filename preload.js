@@ -9,7 +9,8 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  setGrabValue: (value) => ipcRenderer.send('set-grab-value', value)
+  setGrabValue: (value) => ipcRenderer.send('set-grab-value', value),
+  setSaveValue: () => ipcRenderer.send('set-save-value', true),
 })
 
 window.addEventListener('DOMContentLoaded', () => {
