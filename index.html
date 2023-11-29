@@ -19,17 +19,17 @@
       <div class="title">
         <div class="title-value">设置抓取内容</div>
         <div class="tips">
-          node-v:<span id="node-version"></span>
+          node-v:<span id="node-version"></span>-
         </div>
         <div class="tips">
-          chrome-v:<span id="chrome-version"></span>
+          chrome-v:<span id="chrome-version"></span>-
         </div>
         <div class="tips">
-          electron-v:<span id="electron-version"></span>
+          electron-v:<span id="electron-version"></span>-
         </div>
       </div>
       <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
-        <el-form-item label="登录地址" prop="site">
+        <el-form-item label="开始抓取" prop="site">
           <el-input
             v-model="formInline.site"
             placeholder="请输入登录网址:https?://"
@@ -47,7 +47,8 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmitGrasp" :disabled="disableGrasping">开始抓取</el-button>
-          <el-button type="success" @click="onDone" :disabled="!disableGrasping">完成</el-button>
+          <el-button type="info" @click="onSave" :disabled="disableGrasping">保存</el-button>
+          <el-button type="success" @click="onDone" :disabled="!isSave">完成</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -77,20 +78,30 @@
               site: "",
               type: "pdf"
             },
-            grasping: false
+            grasping: false,
+            isSave: false
           };
         },
         methods: {
           onSubmitGrasp() {
             this.$refs.ruleFormRef.validate((valid, fields) => {
               if (valid) {
-                window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
+                console.log(window.electronAPI.setGrabValue(JSON.stringify(this.formInline)))
+                // window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
                 this.grasping = true
               }
             })
           },
-          onDone() {
+          onSave() {
             window.electronAPI.setSaveValue()
+            setTimeout(()=>{
+              this.isSave = true
+            }, 2000)
+          },
+          onDone() {
+            window.electronAPI.setDone()
+          },
+          doneCb() {
             this.grasping = false
           }
         },
@@ -98,7 +109,10 @@
           disableGrasping() {
             return this.grasping
           }
-        }
+        },
+        created() {
+          window.vm = this
+        },
       };
       const app = Vue.createApp(App);
       app.use(ElementPlus);
