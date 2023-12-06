@@ -43,12 +43,12 @@ async function createBrowser() {
   return browser
 }
 
-async function handleSetGrabValue (e, value) {
+async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
   browser = await createBrowser()
   curPage = await browser.newPage();
   curPDF = await PDFDocument.create()
-  ipcMain.emit('step-done', '1')
+  e.reply('config-done', true)
 }
 
 async function handleSetSaveValue() {
@@ -60,7 +60,7 @@ async function handleSetSaveValue() {
   const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
   curPDF.addPage(copiedPage[0]);
 
-  ipcMain.emit('step-done', '1')
+  ipcMain.send('step-done', '1')
   return 1
 }
 
@@ -79,7 +79,7 @@ async function handleSetDone() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  ipcMain.on('set-grab-value', handleSetGrabValue)
+  ipcMain.on('config', handleSetConfig)
   ipcMain.on('set-save-value', handleSetSaveValue)
   ipcMain.on('set-done', handleSetDone)
 

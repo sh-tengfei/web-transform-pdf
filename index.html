@@ -15,7 +15,7 @@
     <title>Web转Pdf</title>
   </head>
   <body>
-    <div id="app">
+    <div id="app" v-loading="loading">
       <div class="title">
         <div class="title-value">设置抓取内容</div>
         <div class="tips">
@@ -46,78 +46,12 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmitGrasp" :disabled="disableGrasping">开始抓取</el-button>
-          <el-button type="info" @click="onSave" :disabled="disableGrasping">保存</el-button>
-          <el-button type="success" @click="onDone" :disabled="!isSave">完成</el-button>
+          <el-button type="primary" @click="onSubmitGrasp" :disabled="configed">抓取设置</el-button>
+          <el-button type="info" @click="onSavePdf" :disabled="!configed || pdfSaveing">保存页面</el-button>
+          <el-button type="success" @click="onGraspDone" :disabled="!pdfSaveing || graspDoneIng">抓取完成</el-button>
         </el-form-item>
       </el-form>
     </div>
-    <script>
-      const App = {
-        data() {
-          return {
-            types: [{
-              value: 'pdf',
-              label: 'PDF'
-            }],
-            rules: {
-              site: [
-                { required: true, message: '请输入登录网址', trigger: 'blur' },
-                {
-                  validator: (rule, value) => {
-                    return /https?:\/\//ig.test(value)
-                  },
-                  message: '格式不正确', trigger: 'blur'
-                }
-              ],
-              type: [
-                { required: true, message: '请选择抓取类型', trigger: 'blur' },
-              ],
-            },
-            formInline: {
-              site: "",
-              type: "pdf"
-            },
-            grasping: false,
-            isSave: false
-          };
-        },
-        methods: {
-          onSubmitGrasp() {
-            this.$refs.ruleFormRef.validate((valid, fields) => {
-              if (valid) {
-                console.log(window.electronAPI.setGrabValue(JSON.stringify(this.formInline)))
-                // window.electronAPI.setGrabValue(JSON.stringify(this.formInline))
-                this.grasping = true
-              }
-            })
-          },
-          onSave() {
-            window.electronAPI.setSaveValue()
-            setTimeout(()=>{
-              this.isSave = true
-            }, 2000)
-          },
-          onDone() {
-            window.electronAPI.setDone()
-          },
-          doneCb() {
-            this.grasping = false
-          }
-        },
-        computed: {
-          disableGrasping() {
-            return this.grasping
-          }
-        },
-        created() {
-          window.vm = this
-        },
-      };
-      const app = Vue.createApp(App);
-      app.use(ElementPlus);
-      app.mount("#app");
-    </script>
     <div class="info">
       <h1>Hello World!</h1>
       We are using Node.js <span id="node-version"></span>,

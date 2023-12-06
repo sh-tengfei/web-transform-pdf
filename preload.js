@@ -7,21 +7,21 @@
  */
 
 const { contextBridge, ipcRenderer, ipcMain } = require('electron')
-const path = require('node:path')
 const puppeteer = require('puppeteer');
 const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
-
+console.log(ipcRenderer.send, ipcRenderer.invoke)
 contextBridge.exposeInMainWorld('electronAPI', {
-  setGrabValue: (value) => ipcRenderer.send('set-grab-value', value),
-  setSaveValue: () => ipcRenderer.send('set-save-value', true),
-  setDone: () => ipcRenderer.send('set-done', true),
+  send: (...args)=> {
+    ipcRenderer.send(...args)
+  },
+  invoke: ipcRenderer.invoke
 })
 
-// ipcMain.on('step-done', (e)=>{
-//   console.log('step-done', e)
-//   window.vm.doneCb(true)
-// })
+ipcMain.on('config-done', (e)=>{
+  console.log('config-done', e)
+  window.vm.configDone(true)
+})
 
 window.addEventListener('DOMContentLoaded', () => {
   const replaceText = (selector, text) => {
