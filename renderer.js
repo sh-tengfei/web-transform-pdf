@@ -31,39 +31,54 @@ const App = {
         site: "",
         type: "pdf"
       },
-      grasping: false,
-      isSave: false,
 
       configed: false,
       graspDoneIng: false,
-      pdfSaveing: false,
+      pdfSaveIng: false,
 
-      loading: false
+      loading: false,
+      canClose: false,
+      pdfNumber: 0
     };
   },
   methods: {
-    onSubmitGrasp() {
+    onStartGrasp() {
       this.$refs.ruleFormRef.validate((valid, fields) => {
         if (valid) {
           window.electronAPI.send('config', JSON.stringify(this.formInline))
           this.configed = true
-          this.loading = true
         }
       })
     },
     onSavePdf() {
-      window.electronAPI.setSaveValue()
-      setTimeout(()=>{
-        this.isSave = true
-      }, 2000)
+      window.electronAPI.send('save')
+      this.pdfSaveIng = true
     },
     onGraspDone() {
-      window.electronAPI.setDone()
-      this.configed = false
+      window.electronAPI.send('grasp')
       this.graspDoneIng = true
+    },
+    onBrowserClose() {
+      window.electronAPI.send('browser-close')
     },
     configDone() {
       this.loading = false
+    },
+    readyDone(state) {
+      this.canClose = state
+    },
+    browserDone(state) {
+      this.canClose = state
+    },
+    closeDone() {
+      this.configed = false
+    },
+    saveDone(pages) {
+      this.pdfNumber = pages
+      this.pdfSaveIng = false
+    },
+    graspDone(e) {
+      this.graspDoneIng = false
     }
   },
   computed: {
@@ -71,8 +86,16 @@ const App = {
       return this.grasping
     }
   },
+  mounted() {
+    window.electronAPI.ready((name, value) => {
+      if (this[name]) {
+        this[name](value)
+      }
+    })
+    window.electronAPI.send('ready')
+  },
   created() {
-    window.vm = this
+    window._vm = this
   },
 };
 const app = Vue.createApp(App);

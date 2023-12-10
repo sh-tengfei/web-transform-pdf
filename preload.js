@@ -6,21 +6,35 @@
  * https://www.electronjs.org/docs/latest/tutorial/sandbox
  */
 
-const { contextBridge, ipcRenderer, ipcMain } = require('electron')
-const puppeteer = require('puppeteer');
-const { PDFDocument } = require('pdf-lib')
-const fs = require('fs');
-console.log(ipcRenderer.send, ipcRenderer.invoke)
+const { contextBridge, ipcRenderer } = require('electron')
+let cb = null
 contextBridge.exposeInMainWorld('electronAPI', {
   send: (...args)=> {
     ipcRenderer.send(...args)
   },
+  ready: (vm) => {
+    cb = vm
+  },
   invoke: ipcRenderer.invoke
 })
 
-ipcMain.on('config-done', (e)=>{
-  console.log('config-done', e)
-  window.vm.configDone(true)
+ipcRenderer.on('ready-done', (e, value)=>{
+  cb && cb('readyDone', value)
+})
+ipcRenderer.on('browser-done', (e, value)=>{
+  cb && cb('readyDone', value)
+})
+ipcRenderer.on('config-done', (e, value)=>{
+  cb && cb('configDone', value)
+})
+ipcRenderer.on('close-done', (e, value)=>{
+  cb && cb('closeDone', value)
+})
+ipcRenderer.on('grasp-done', (e, value)=>{
+  cb && cb('graspDone', value)
+})
+ipcRenderer.on('save-done', (e, value)=>{
+  cb && cb('saveDone', value)
 })
 
 window.addEventListener('DOMContentLoaded', () => {

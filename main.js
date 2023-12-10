@@ -8,7 +8,7 @@ const fs = require('fs');
 function createWindow () {
   // Create base browser window.
   const mainWindow = new BrowserWindow({
-    width: 600,
+    width: 800,
     height: 500,
     ignoreHTTPSErrors: true,
     alwaysOnTop: true,
@@ -35,43 +35,58 @@ let curConfig = null
 let curPDF = null
 
 async function createBrowser() {
-  if (browser) {
-    return browser
-  }
   // 打开一个浏览器实例
-  browser = await puppeteer.launch({ headless: false });
+  browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport : null,
+    ignoreDefaultArgs: ['--enable-automation'],
+    args: [
+      '--start-maximized',
+      '--no-first-run'
+    ],
+    channel: 'chrome',
+  });
+  browserPID = browser.process().pid
   return browser
 }
 
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
-  browser = await createBrowser()
-  curPage = await browser.newPage();
+  browser = await createBrowser(curConfig.site)
+  e.reply('browser-done', true)
+  const pages = await browser.pages()
+  curPage = pages[0];
+  await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
   curPDF = await PDFDocument.create()
   e.reply('config-done', true)
 }
 
-async function handleSetSaveValue() {
-  // 访问目标页
-  await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' });
+async function handleCloseBrowser (e) {
+  if (browser) {
+    await browser.close()
+  }
+  e.reply('close-done', true)
+}
+
+async function handleBrowserReady (e) {
+  e.reply('ready-done', browser ? true : false)
+}
+
+async function handleSetSavePdf(e) {
   // 将页面保存为pdf格式
   const pdf = await curPage.pdf({ format: 'A4' });
   const donorPdfDoc = await PDFDocument.load(pdf);
   const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
   curPDF.addPage(copiedPage[0]);
-
-  ipcMain.send('step-done', '1')
-  return 1
+  e.reply('save-done', await curPDF.getPageCount())
 }
 
-async function handleSetDone() {
-  const mergedPdfBuffer = await pdfDoc.save()
+async function handleSetGrasp(e) {
+  const mergedPdfBuffer = await curPDF.save()
   const name = curConfig.site.replace(/https?:\/\//ig, '').replace('/', '.pdf')
 
   fs.writeFileSync(name, mergedPdfBuffer);
-  // 关闭浏览器实例
-  await browser.close();
-  ipcMain.emit('step-done', '1')
+  e.reply('grasp-done', name)
 }
 
 // This method will be called when Electron has finished
@@ -80,9 +95,12 @@ async function handleSetDone() {
 app.whenReady().then(() => {
   createWindow()
   ipcMain.on('config', handleSetConfig)
-  ipcMain.on('set-save-value', handleSetSaveValue)
-  ipcMain.on('set-done', handleSetDone)
+  ipcMain.on('ready', handleBrowserReady)
+  ipcMain.on('browser-close', handleCloseBrowser)
 
+  ipcMain.on('save', handleSetSavePdf)
+  ipcMain.on('grasp', handleSetGrasp)
+  
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
