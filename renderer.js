@@ -33,65 +33,61 @@ const App = {
       },
 
       configed: false,
-      graspDoneIng: false,
-      pdfSaveIng: false,
 
-      loading: false,
-      canClose: false,
-      pdfNumber: 0
+      pageNumber: 0, //现在一共多少页
+      isExistPdf: false, // 是否存在pdf
+      isExistBrowser: false, // 是否存在浏览器
+
+      operateIng: false // 操作中
     };
   },
   methods: {
-    onStartGrasp() {
-      this.$refs.ruleFormRef.validate((valid, fields) => {
+    onStart() {
+      this.$refs.ruleFormRef.validate((valid) => {
         if (valid) {
           window.electronAPI.send('config', JSON.stringify(this.formInline))
-          this.configed = true
+          this.operateIng = true
         }
       })
     },
     onSavePdf() {
       window.electronAPI.send('save')
-      this.pdfSaveIng = true
+      this.operateIng = true
     },
-    onGraspDone() {
+    onCreatedPdf() {
       window.electronAPI.send('grasp')
-      this.graspDoneIng = true
+      this.operateIng = true
     },
-    onBrowserClose() {
-      window.electronAPI.send('browser-close')
-    },
-    configDone() {
-      this.loading = false
-    },
-    readyDone(state) {
-      this.canClose = state
-    },
-    browserDone(state) {
-      this.canClose = state
-    },
-    closeDone() {
-      this.configed = false
-    },
-    saveDone(pages) {
-      this.pdfNumber = pages
-      this.pdfSaveIng = false
-    },
-    graspDone(e) {
-      this.graspDoneIng = false
+    onCloseBrowser() {
+      window.electronAPI.send('close-browser')
     }
   },
   computed: {
-    disableGrasping() {
-      return this.grasping
-    }
+    disableStart() {
+      return this.isExistBrowser || this.operateIng
+    },
+    disableSave() {
+      return !this.isExistBrowser || this.operateIng
+    },
+    disableCreatedPdf() {
+      return this.pageNumber === 0 || this.operateIng
+    },
+    disableClose() {
+      return !this.isExistBrowser || this.operateIng
+    },
   },
   mounted() {
-    window.electronAPI.ready((name, value) => {
+    window.electronAPI.ready((name, { pageNumber, isExistPdf, isExistBrowser }) => {
+      console.log(pageNumber, isExistPdf, isExistBrowser)
+      this.pageNumber = pageNumber
+      this.isExistPdf = isExistPdf
+      this.isExistBrowser = isExistBrowser
+      this.operateIng = false
       if (this[name]) {
         this[name](value)
       }
     })
+    console.log('ready')
     window.electronAPI.send('ready')
   },
   created() {

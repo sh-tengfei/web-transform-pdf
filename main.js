@@ -34,6 +34,14 @@ let curPage = null
 let curConfig = null
 let curPDF = null
 
+async function getCurrentData() {
+  return {
+    pageNumber: curPDF ? await curPDF.getPageCount() : 0,
+    isExistPdf: !!curPDF,
+    isExistBrowser: browser ? true : false
+  }
+}
+
 async function createBrowser() {
   // 打开一个浏览器实例
   browser = await puppeteer.launch({
@@ -53,23 +61,25 @@ async function createBrowser() {
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
   browser = await createBrowser(curConfig.site)
-  e.reply('browser-done', true)
   const pages = await browser.pages()
   curPage = pages[0];
   await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
   curPDF = await PDFDocument.create()
-  e.reply('config-done', true)
+  e.reply('config-done', await getCurrentData())
 }
 
 async function handleCloseBrowser (e) {
-  if (browser) {
-    await browser.close()
-  }
+  if (browser) await browser.close()
   e.reply('close-done', true)
 }
 
+// 浏览器 ready
 async function handleBrowserReady (e) {
-  e.reply('ready-done', browser ? true : false)
+  browser = null
+  curPDF = null
+  curConfig = null
+  if (browser) await browser.close()
+  e.reply('ready-done', await getCurrentData())
 }
 
 async function handleSetSavePdf(e) {
@@ -96,7 +106,7 @@ app.whenReady().then(() => {
   createWindow()
   ipcMain.on('config', handleSetConfig)
   ipcMain.on('ready', handleBrowserReady)
-  ipcMain.on('browser-close', handleCloseBrowser)
+  ipcMain.on('close-browser', handleCloseBrowser)
 
   ipcMain.on('save', handleSetSavePdf)
   ipcMain.on('grasp', handleSetGrasp)

@@ -12,8 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   send: (...args)=> {
     ipcRenderer.send(...args)
   },
-  ready: (vm) => {
-    cb = vm
+  ready: (vmCb) => {
+    cb = vmCb
   },
   invoke: ipcRenderer.invoke
 })
