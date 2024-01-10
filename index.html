@@ -61,16 +61,13 @@
           <el-button type="warning" @click="onCloseBrowser" :disabled="disableClose">关闭浏览器</el-button>
         </el-form-item>
       </el-form>
-      <el-form-item class="save-number" label="已存PDF数" v-if="pageNumber > 0">
-        <el-tag type="success">{{pageNumber}}页</el-tag>
-      </el-form-item>
-      <el-form-item class="save-number" label="浏览器页数" v-if="browserPages > 0">
-        <el-tag type="warning">{{browserPages}}页</el-tag>
+      <el-form-item class="save-number" label="">
+        <p v-if="pageNumber > 0">已存PDF数：<el-tag type="success">{{pageNumber}}页</el-tag></p>&nbsp;
+        <p v-if="browserPages > 0">浏览器页数：<el-tag type="warning">{{browserPages}}页</el-tag></p>
       </el-form-item>
       <el-form-item class="save-number" label="文件名称" v-if="fileName">
         <el-tag type="info">{{fileName}}</el-tag>
       </el-form-item>
-
       <el-dialog v-model="showSaveName" title="保存文件名称">
         <el-form :model="saveNameForm">
           <el-form-item label="文件名称">

@@ -4,6 +4,7 @@ const path = require('node:path')
 const puppeteer = require('puppeteer');
 const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
+const files = './files/'
 
 function createWindow () {
   // Create base browser window.
@@ -11,13 +12,17 @@ function createWindow () {
     width: 800,
     height: 700,
     ignoreHTTPSErrors: true,
-    alwaysOnTop: true,
+    alwaysOnTop: !true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false,
       webviewTag: true
     }
   })
+  let checkDir = fs.existsSync(files)
+  if (!checkDir) {
+    fs.mkdirSync(files)
+  }
 
   // and load the index.html of the app.
   // mainWindow.loadURL('http://localhost:8081/')
@@ -31,20 +36,23 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let browser = null
 let curPage = null
-let curConfig = null
 let curPDF = null
+let curConfig = null
 
 async function getCurrentData() {
   const pages = browser ? await browser.pages() : null
   return {
+    existConfig: !!curConfig,
     pageNumber: curPDF ? await curPDF.getPageCount() : 0,
-    isExistPdf: !!curPDF,
-    isExistBrowser: browser ? true : false,
+    existBrowser: browser ? true : false,
     browserPages: pages ? pages.length : 0
   }
 }
 
 async function createBrowser() {
+  if (browser) {
+    return browser
+  }
   // 打开一个浏览器实例
   browser = await puppeteer.launch({
     headless: false,
@@ -56,7 +64,6 @@ async function createBrowser() {
     ],
     channel: 'chrome',
   });
-  browserPID = browser.process().pid
   return browser
 }
 
@@ -79,32 +86,35 @@ async function handleSetSavePdf(e) {
   e.reply('save-done', await getCurrentData())
 }
 
-
-async function handleCloseBrowser (e) {
-  if (browser) await browser.close()
-  browser = null
-  e.reply('close-done', true)
-}
-
 // 浏览器 ready
 async function handleBrowserReady (e) {
-  browser = null
+  if (browser) {
+    await browser.close()
+    browser = null
+  }
   curPDF = null
   curConfig = null
-  if (browser) await browser.close()
   e.reply('ready-done', await getCurrentData())
 }
 
 async function handleSetCreatePdf(e, name) {
-  console.log(name, __dirname)
   const mergedPdfBuffer = await curPDF.save()
-  const filename = `./files/${name}.pdf`
+  const filename = `${name}.pdf`
+  const filepath = path.join(files, filename)
 
-  const result = fs.writeFileSync(filename, mergedPdfBuffer);
+  const result = fs.writeFileSync(filepath, mergedPdfBuffer);
   // 清除配置 PDF数据
   curPDF = null
   curConfig = null
-  e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: path.join(__dirname, filename), result })
+  e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: path.join(__dirname, filepath), result })
+}
+
+async function handleCloseBrowser (e) {
+  if (browser) await browser.close()
+  browser = null
+  curPDF = null
+  curConfig = null
+  e.reply('close-done', { ...getCurrentData() })
 }
 
 // This method will be called when Electron has finished
@@ -131,6 +141,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
+  fs.rmSync(files, { recursive: true})
 })
 
 // In this file you can include the rest of your app's specific main process

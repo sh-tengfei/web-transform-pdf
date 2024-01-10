@@ -67,13 +67,12 @@ const App = {
       formInline: {
         site: "",
         type: "pdf",
-        size: "A5"
+        size: "A4"
       },
 
-      configed: false,
+      existConfig: false,
 
-      pageNumber: 0, //现在一共多少页
-      isExistPdf: false, // 是否存在pdf
+      pageNumber: 0, //pdf现在一共多少页
       isExistBrowser: false, // 是否存在浏览器
 
       operateIng: false, // 操作中
@@ -83,7 +82,8 @@ const App = {
       showSaveName: false,
       saveNameForm: {
         saveName: null,
-      }
+      },
+      pdfPath: null
     };
   },
   methods: {
@@ -101,7 +101,7 @@ const App = {
     },
     onCreatedPdf() {
       if (!this.saveNameForm.saveName) {
-        return window.ElementPlus.ElAlert('请输入文件名称')
+        return window.ElementPlus.ElMessageBox.alert('请输入文件名称')
       }
       this.showSaveName = false
       this.operateIng = true
@@ -122,7 +122,7 @@ const App = {
   },
   computed: {
     disableStart() {
-      return this.isExistBrowser || this.operateIng
+      return this.existConfig || this.operateIng
     },
     disableSave() {
       return !this.isExistBrowser || this.operateIng
@@ -134,22 +134,30 @@ const App = {
       return !this.isExistBrowser || this.operateIng
     },
   },
+  watch: {
+    pdfPath(val) {
+      if (val) {
+        const a = document.createElement('a')
+        a.href = val
+        a.download = this.fileName
+        a.click()
+      }
+    }
+  },
   mounted() {
     window.electronAPI.ready((name, e) => {
-      const { pageNumber, isExistPdf, isExistBrowser, browserPages, fileName, path, result } = e
-      console.log(name, pageNumber, isExistPdf, isExistBrowser, browserPages, path, result)
+      const { pageNumber, existBrowser, browserPages, fileName, path, existConfig } = e
       this.pageNumber = pageNumber
-      this.isExistPdf = isExistPdf
-      this.isExistBrowser = isExistBrowser
+      this.isExistBrowser = existBrowser
       this.browserPages = browserPages
+      this.existConfig = existConfig
       this.operateIng = false
-      if (fileName) {
+      if (path) {
+        this.pdfPath = path
         this.fileName = fileName
       } else {
+        this.pdfPath = null
         this.fileName = null
-      }
-      if (this[name]) {
-        this[name](value)
       }
     })
     window.electronAPI.send('ready')
