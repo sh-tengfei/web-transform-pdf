@@ -6,12 +6,12 @@
     <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"> -->
     <link href="./normalize.css" rel="stylesheet">
     <link href="./styles.css" rel="stylesheet">
-        <!-- Import style -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <!-- Import style -->
+    <link rel="stylesheet" href="./element/index.css" />
     <!-- Import Vue 3 -->
-    <script src="https://unpkg.com/vue@3"></script>
+    <script src="./element/vue@3.js"></script>
     <!-- Import component library -->
-    <script src="https://unpkg.com/element-plus"></script>
+    <script src="./element/element.js"></script>
     <title>Web转Pdf</title>
   </head>
   <body>
@@ -45,16 +45,44 @@
             <el-option v-for="(type, index) in types" :key="type.label" :label="type.label" :value="type.value" />
           </el-select>
         </el-form-item>
+        <el-form-item label="抓取大小" prop="size">
+          <el-select
+            v-model="formInline.size"
+            placeholder="请选择抓取大小"
+            clearable
+          >
+            <el-option v-for="(size, index) in sizes" :key="size.label" :label="size.label" :value="size.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onStart" :disabled="disableStart">开始</el-button>
-          <el-button type="info" @click="onSavePdf" :disabled="disableSave">保存页面</el-button>
-          <el-button type="success" @click="onCreatedPdf" :disabled="disableCreatedPdf">生成PDF</el-button>
+          <el-button type="primary" @click="onStart" :disabled="disableStart">发送配置</el-button>
+          <el-button type="info" @click="onSavePdf" :disabled="disableSave">生成PDF</el-button>
+          <el-button type="success" @click="showSaveName = true" :disabled="disableCreatedPdf">保存PDF</el-button>
           <el-button type="warning" @click="onCloseBrowser" :disabled="disableClose">关闭浏览器</el-button>
         </el-form-item>
       </el-form>
-      <el-form-item label="已存PDF数" v-if="pageNumber > 0">
+      <el-form-item class="save-number" label="已存PDF数" v-if="pageNumber > 0">
         <el-tag type="success">{{pageNumber}}页</el-tag>
       </el-form-item>
+      <el-form-item class="save-number" label="浏览器页数" v-if="browserPages > 0">
+        <el-tag type="warning">{{browserPages}}页</el-tag>
+      </el-form-item>
+      <el-form-item class="save-number" label="文件名称" v-if="fileName">
+        <el-tag type="info">{{fileName}}</el-tag>
+      </el-form-item>
+
+      <el-dialog v-model="showSaveName" title="保存文件名称">
+        <el-form :model="saveNameForm">
+          <el-form-item label="文件名称">
+            <el-input v-model="saveNameForm.saveName" placeholder="请输入保存文件名称" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="onCreatedPdf">确定</el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
     <div class="info">
       <h1>Hello World!</h1>

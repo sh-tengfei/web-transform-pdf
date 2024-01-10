@@ -13,6 +13,40 @@ const App = {
         value: 'pdf',
         label: 'PDF'
       }],
+      sizes: [{
+        value: 'Letter',
+        label: 'Letter'
+      }, {
+        value: 'Legal',
+        label: 'Legal'
+      }, {
+        value: 'Tabloid',
+        label: 'Tabloid'
+      }, {
+        value: 'Ledger',
+        label: 'Ledger'
+      }, {
+        value: 'A0',
+        label: 'A0'
+      }, {
+        value: 'A1',
+        label: 'A1'
+      }, {
+        value: 'A2',
+        label: 'A2'
+      }, {
+        value: 'A3',
+        label: 'A3'
+      }, {
+        value: 'A4',
+        label: 'A4'
+      }, {
+        value: 'A5',
+        label: 'A5'
+      }, {
+        value: 'A6',
+        label: 'A6'
+      }],
       rules: {
         site: [
           { required: true, message: '请输入登录网址', trigger: 'blur' },
@@ -26,10 +60,14 @@ const App = {
         type: [
           { required: true, message: '请选择抓取类型', trigger: 'blur' },
         ],
+        size: [
+          { required: true, message: '请选择页面大小', trigger: 'blur' },
+        ],
       },
       formInline: {
         site: "",
-        type: "pdf"
+        type: "pdf",
+        size: "A5"
       },
 
       configed: false,
@@ -38,7 +76,14 @@ const App = {
       isExistPdf: false, // 是否存在pdf
       isExistBrowser: false, // 是否存在浏览器
 
-      operateIng: false // 操作中
+      operateIng: false, // 操作中
+      browserPages: 0, // 浏览器页数
+      fileName: null, // 文件名称
+
+      showSaveName: false,
+      saveNameForm: {
+        saveName: null,
+      }
     };
   },
   methods: {
@@ -51,15 +96,28 @@ const App = {
       })
     },
     onSavePdf() {
-      window.electronAPI.send('save')
       this.operateIng = true
+      window.electronAPI.send('save')
     },
     onCreatedPdf() {
-      window.electronAPI.send('grasp')
+      if (!this.saveNameForm.saveName) {
+        return window.ElementPlus.ElAlert('请输入文件名称')
+      }
+      this.showSaveName = false
       this.operateIng = true
+      window.electronAPI.send('create', this.saveNameForm.saveName)
+      this.saveNameForm.saveName = null
     },
     onCloseBrowser() {
-      window.electronAPI.send('close-browser')
+      window.ElementPlus.ElMessageBox.confirm('确认关闭浏览器？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(()=>{
+        window.electronAPI.send('close-browser')
+      }).catch((e)=>{
+        console.log(e)
+      })
     }
   },
   computed: {
@@ -77,17 +135,23 @@ const App = {
     },
   },
   mounted() {
-    window.electronAPI.ready((name, { pageNumber, isExistPdf, isExistBrowser }) => {
-      console.log(pageNumber, isExistPdf, isExistBrowser)
+    window.electronAPI.ready((name, e) => {
+      const { pageNumber, isExistPdf, isExistBrowser, browserPages, fileName, path, result } = e
+      console.log(name, pageNumber, isExistPdf, isExistBrowser, browserPages, path, result)
       this.pageNumber = pageNumber
       this.isExistPdf = isExistPdf
       this.isExistBrowser = isExistBrowser
+      this.browserPages = browserPages
       this.operateIng = false
+      if (fileName) {
+        this.fileName = fileName
+      } else {
+        this.fileName = null
+      }
       if (this[name]) {
         this[name](value)
       }
     })
-    console.log('ready')
     window.electronAPI.send('ready')
   },
   created() {

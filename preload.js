@@ -30,8 +30,8 @@ ipcRenderer.on('config-done', (e, value)=>{
 ipcRenderer.on('close-done', (e, value)=>{
   cb && cb('closeDone', value)
 })
-ipcRenderer.on('grasp-done', (e, value)=>{
-  cb && cb('graspDone', value)
+ipcRenderer.on('create-done', (e, value)=>{
+  cb && cb('createDone', value)
 })
 ipcRenderer.on('save-done', (e, value)=>{
   cb && cb('saveDone', value)

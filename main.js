@@ -9,7 +9,7 @@ function createWindow () {
   // Create base browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
-    height: 500,
+    height: 700,
     ignoreHTTPSErrors: true,
     alwaysOnTop: true,
     webPreferences: {
@@ -35,10 +35,12 @@ let curConfig = null
 let curPDF = null
 
 async function getCurrentData() {
+  const pages = browser ? await browser.pages() : null
   return {
     pageNumber: curPDF ? await curPDF.getPageCount() : 0,
     isExistPdf: !!curPDF,
-    isExistBrowser: browser ? true : false
+    isExistBrowser: browser ? true : false,
+    browserPages: pages ? pages.length : 0
   }
 }
 
@@ -68,8 +70,19 @@ async function handleSetConfig (e, value) {
   e.reply('config-done', await getCurrentData())
 }
 
+async function handleSetSavePdf(e) {
+  // 将页面保存为pdf格式
+  const pdf = await curPage.pdf({ format: 'A4' });
+  const donorPdfDoc = await PDFDocument.load(pdf);
+  const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
+  curPDF.addPage(copiedPage[0]);
+  e.reply('save-done', await getCurrentData())
+}
+
+
 async function handleCloseBrowser (e) {
   if (browser) await browser.close()
+  browser = null
   e.reply('close-done', true)
 }
 
@@ -82,21 +95,16 @@ async function handleBrowserReady (e) {
   e.reply('ready-done', await getCurrentData())
 }
 
-async function handleSetSavePdf(e) {
-  // 将页面保存为pdf格式
-  const pdf = await curPage.pdf({ format: 'A4' });
-  const donorPdfDoc = await PDFDocument.load(pdf);
-  const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
-  curPDF.addPage(copiedPage[0]);
-  e.reply('save-done', await curPDF.getPageCount())
-}
-
-async function handleSetGrasp(e) {
+async function handleSetCreatePdf(e, name) {
+  console.log(name, __dirname)
   const mergedPdfBuffer = await curPDF.save()
-  const name = curConfig.site.replace(/https?:\/\//ig, '').replace('/', '.pdf')
+  const filename = `./files/${name}.pdf`
 
-  fs.writeFileSync(name, mergedPdfBuffer);
-  e.reply('grasp-done', name)
+  const result = fs.writeFileSync(filename, mergedPdfBuffer);
+  // 清除配置 PDF数据
+  curPDF = null
+  curConfig = null
+  e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: path.join(__dirname, filename), result })
 }
 
 // This method will be called when Electron has finished
@@ -109,7 +117,7 @@ app.whenReady().then(() => {
   ipcMain.on('close-browser', handleCloseBrowser)
 
   ipcMain.on('save', handleSetSavePdf)
-  ipcMain.on('grasp', handleSetGrasp)
+  ipcMain.on('create', handleSetCreatePdf)
   
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
