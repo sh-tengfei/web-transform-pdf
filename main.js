@@ -26,7 +26,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   // mainWindow.loadURL('http://localhost:8081/')
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile('public/index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -64,14 +64,25 @@ async function createBrowser() {
     ],
     channel: 'chrome',
   });
+
+  browser.on('targetcreated', async (target) => {
+    const pages = await browser.pages()
+    while (pages.length > 1) {
+      const firstPage = pages.shift()
+      firstPage.close()
+    }
+    if (curPage !== pages[0]) {
+      curPage = pages[0]
+    }
+  })
   return browser
 }
 
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
-  browser = await createBrowser(curConfig.site)
+  await createBrowser(curConfig.site)
   const pages = await browser.pages()
-  curPage = pages[0];
+  curPage = pages.pop();
   await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
   curPDF = await PDFDocument.create()
   e.reply('config-done', await getCurrentData())
@@ -124,7 +135,7 @@ app.whenReady().then(() => {
   createWindow()
   ipcMain.on('config', handleSetConfig)
   ipcMain.on('ready', handleBrowserReady)
-  ipcMain.on('close-browser', handleCloseBrowser)
+  ipcMain.on('close', handleCloseBrowser)
 
   ipcMain.on('save', handleSetSavePdf)
   ipcMain.on('create', handleSetCreatePdf)

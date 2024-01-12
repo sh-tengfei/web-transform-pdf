@@ -114,7 +114,7 @@ const App = {
         cancelButtonText: '取消',
         type: 'warning',
       }).then(()=>{
-        window.electronAPI.send('close-browser')
+        window.electronAPI.send('close')
       }).catch((e)=>{
         console.log(e)
       })
