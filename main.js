@@ -43,7 +43,7 @@ async function getCurrentData() {
   const pages = browser ? await browser.pages() : null
   return {
     existConfig: !!curConfig,
-    pageNumber: curPDF ? await curPDF.getPageCount() : 0,
+    pdfNumber: curPDF ? await curPDF.getPageCount() : 0,
     existBrowser: browser ? true : false,
     browserPages: pages ? pages.length : 0
   }
@@ -80,20 +80,41 @@ async function createBrowser() {
 
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
-  await createBrowser(curConfig.site)
-  const pages = await browser.pages()
-  curPage = pages.pop();
-  await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
-  curPDF = await PDFDocument.create()
   e.reply('config-done', await getCurrentData())
+}
+
+async function handleOpenBrowser (e) {
+  // if(curConfig?.site) {
+    await createBrowser(curConfig.site)
+    const pages = await browser.pages()
+    curPage = pages.pop();
+    await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
+    curPDF = await PDFDocument.create()
+    e.reply('open-done', await getCurrentData())
+  // }
+}
+
+async function clickContrastSave(currentPage) {
+  let prevContent = null
+  let curContent = null
+  do {
+    prevContent = await currentPage.content()
+    const pdf = await currentPage.pdf({ format: 'A4' });
+    const donorPdfDoc = await PDFDocument.load(pdf);
+    const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
+    curPDF.addPage(copiedPage[0]);
+    await currentPage.click('body')
+    await currentPage.waitForNetworkIdle()
+    curContent = await currentPage.content()
+    console.log(prevContent, curContent, Date.now())
+  } while(prevContent !== curContent);
+  return curPDF
 }
 
 async function handleSetSavePdf(e) {
   // 将页面保存为pdf格式
-  const pdf = await curPage.pdf({ format: 'A4' });
-  const donorPdfDoc = await PDFDocument.load(pdf);
-  const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
-  curPDF.addPage(copiedPage[0]);
+  await clickContrastSave(curPage)
+
   e.reply('save-done', await getCurrentData())
 }
 
@@ -125,7 +146,7 @@ async function handleCloseBrowser (e) {
   browser = null
   curPDF = null
   curConfig = null
-  e.reply('close-done', { ...getCurrentData() })
+  e.reply('close-done', { ...await getCurrentData() })
 }
 
 // This method will be called when Electron has finished
@@ -133,10 +154,10 @@ async function handleCloseBrowser (e) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  ipcMain.on('config', handleSetConfig)
   ipcMain.on('ready', handleBrowserReady)
+  ipcMain.on('config', handleSetConfig)
+  ipcMain.on('openBrowser', handleOpenBrowser)
   ipcMain.on('close', handleCloseBrowser)
-
   ipcMain.on('save', handleSetSavePdf)
   ipcMain.on('create', handleSetCreatePdf)
   

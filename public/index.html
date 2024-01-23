@@ -55,14 +55,15 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onStart" :disabled="disableStart">发送配置</el-button>
+          <el-button type="primary" @click="onSendConfig" :disabled="disableStart">发送配置</el-button>
+          <el-button @click="onOpenBrower" :disabled="disableOpenBrower">打开浏览器</el-button>
           <el-button type="info" @click="onSavePdf" :disabled="disableSave">生成PDF</el-button>
           <el-button type="success" @click="showSaveName = true" :disabled="disableCreatedPdf">保存PDF</el-button>
           <el-button type="warning" @click="onCloseBrowser" :disabled="disableClose">关闭浏览器</el-button>
         </el-form-item>
       </el-form>
       <el-form-item class="save-number" label="">
-        <p v-if="pageNumber > 0">已存PDF数：<el-tag type="success">{{pageNumber}}页</el-tag></p>&nbsp;
+        <p v-if="pdfNumber > 0">已生成PDF数：<el-tag type="success">{{pdfNumber}}页</el-tag></p>&nbsp;
         <p v-if="browserPages > 0">浏览器页数：<el-tag type="warning">{{browserPages}}页</el-tag></p>
       </el-form-item>
       <el-form-item class="save-number" label="文件名称" v-if="fileName">

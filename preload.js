@@ -21,8 +21,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 ipcRenderer.on('ready-done', (e, value)=>{
   cb && cb('readyDone', value)
 })
-ipcRenderer.on('browser-done', (e, value)=>{
-  cb && cb('readyDone', value)
+ipcRenderer.on('open-done', (e, value)=>{
+  cb && cb('openDone', value)
 })
 ipcRenderer.on('config-done', (e, value)=>{
   cb && cb('configDone', value)

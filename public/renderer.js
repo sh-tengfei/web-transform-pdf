@@ -72,7 +72,7 @@ const App = {
 
       existConfig: false,
 
-      pageNumber: 0, //pdf现在一共多少页
+      pdfNumber: 0, //pdf现在一共多少页
       isExistBrowser: false, // 是否存在浏览器
 
       operateIng: false, // 操作中
@@ -87,13 +87,17 @@ const App = {
     };
   },
   methods: {
-    onStart() {
+    onSendConfig() {
       this.$refs.ruleFormRef.validate((valid) => {
         if (valid) {
           window.electronAPI.send('config', JSON.stringify(this.formInline))
           this.operateIng = true
         }
       })
+    },
+    onOpenBrower() {
+      window.electronAPI.send('openBrowser')
+      this.operateIng = true
     },
     onSavePdf() {
       this.operateIng = true
@@ -124,11 +128,14 @@ const App = {
     disableStart() {
       return this.existConfig || this.operateIng
     },
+    disableOpenBrower() {
+      return this.isExistBrowser || !this.existConfig || this.operateIng
+    },
     disableSave() {
-      return !this.isExistBrowser || this.operateIng
+      return this.operateIng || !this.isExistBrowser || !this.existConfig || this.pdfNumber > 0
     },
     disableCreatedPdf() {
-      return this.pageNumber === 0 || this.operateIng
+      return this.pdfNumber === 0 || this.operateIng || !this.existConfig || !this.isExistBrowser
     },
     disableClose() {
       return !this.isExistBrowser || this.operateIng
@@ -146,8 +153,8 @@ const App = {
   },
   mounted() {
     window.electronAPI.ready((name, e) => {
-      const { pageNumber, existBrowser, browserPages, fileName, path, existConfig } = e
-      this.pageNumber = pageNumber
+      const { pdfNumber, existBrowser, browserPages, fileName, path, existConfig } = e
+      this.pdfNumber = pdfNumber
       this.isExistBrowser = existBrowser
       this.browserPages = browserPages
       this.existConfig = existConfig
