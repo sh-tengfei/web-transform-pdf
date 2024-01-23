@@ -5,7 +5,10 @@
   "main": "main.js",
   "scripts": {
     "i": "PUPPETEER_PRODUCT=chrome npm i --verb",
-    "start": "electron ."
+    "start": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "repository": "git@github.com:sh-tengfei/web-transform-pdf.git",
   "keywords": [
@@ -18,6 +21,7 @@
   "author": "",
   "license": "CC0-1.0",
   "devDependencies": {
+    "@electron-forge/publisher-github": "^7.2.0",
     "electron": "^26.0.0"
   },
   "dependencies": {

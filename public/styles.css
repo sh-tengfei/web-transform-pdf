@@ -23,6 +23,7 @@ html{
   padding-left: 20px;
   padding-right: 20px;
   background-color: #f5f5ff;
+  box-sizing: border-box;
 }
 .form-inline{
   margin-top: 20px;
