@@ -4,11 +4,12 @@
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
+    "ii": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install",
     "i": "PUPPETEER_PRODUCT=chrome npm i --verb",
-    "start": "electron .",
+    "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "make": "PUPPETEER_PRODUCT=chrome electron-forge make",
+    "publish": "PUPPETEER_PRODUCT=chrome electron-forge publish"
   },
   "repository": "git@github.com:sh-tengfei/web-transform-pdf.git",
   "keywords": [
@@ -21,12 +22,22 @@
   "author": "",
   "license": "CC0-1.0",
   "devDependencies": {
-    "@electron-forge/publisher-github": "^7.2.0",
-    "electron": "^26.0.0"
+    "@electron-forge/cli": "^7.3.0",
+    "@electron-forge/maker-deb": "^7.3.0",
+    "@electron-forge/maker-rpm": "^7.3.0",
+    "@electron-forge/maker-squirrel": "^7.3.0",
+    "@electron-forge/maker-zip": "^7.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
+    "@electron/fuses": "^1.7.0",
+    "electron": "^29.1.4"
   },
   "dependencies": {
+    "@electron-forge/plugin-fuses": "^7.3.0",
     "apify": "^3.1.13",
+    "electron-squirrel-startup": "^1.0.0",
     "pdf-lib": "^1.17.1",
-    "puppeteer": "^21.6.0"
+    "puppeteer": "^21.6.0",
+    "stream": "0.0.2",
+    "views": "^1.0.2"
   }
 }
