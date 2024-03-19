@@ -3,7 +3,15 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    // asar: true,
+    // icon: "path/to/icon",
+    "ignore": [
+      ".cache/chrome/",
+      ".gitignore",
+      "README.md",
+      "yarn.lock"
+    ],
+    "executableName": "webToPdf"
   },
   rebuildConfig: {},
   makers: [
@@ -25,10 +33,10 @@ module.exports = {
     },
   ],
   plugins: [
-    {
-      name: '@electron-forge/plugin-auto-unpack-natives',
-      config: {},
-    },
+    // {
+    //   name: '@electron-forge/plugin-auto-unpack-natives',
+    //   config: {},
+    // },
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
@@ -38,7 +46,7 @@ module.exports = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      // [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
 };

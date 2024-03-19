@@ -4,7 +4,7 @@ const path = require('node:path')
 const puppeteer = require('puppeteer');
 const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
-const files = './files/'
+const files = `${__dirname}/files/`
 
 function createWindow () {
   // Create base browser window.
@@ -19,9 +19,13 @@ function createWindow () {
       webviewTag: true
     }
   })
-  let checkDir = fs.existsSync(files)
-  if (!checkDir) {
-    fs.mkdirSync(files)
+  try {
+    let checkDir = fs.existsSync(files)
+    if (!checkDir) {
+      fs.mkdirSync(files)
+    }
+  } catch (error) {
+    console.log(error)
   }
 
   // and load the index.html of the app.
@@ -173,7 +177,11 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
-  fs.rmSync(files, { recursive: true})
+  try {
+    fs.rmSync(files, { recursive: true})
+  } catch (error) {
+    console.log(error)
+  }
 })
 
 // In this file you can include the rest of your app's specific main process

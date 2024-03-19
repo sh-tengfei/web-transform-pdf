@@ -1,15 +1,15 @@
 {
-  "name": "web-transform-pdf",
+  "name": "web-to-pdf",
   "version": "1.0.0",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
     "ii": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install",
-    "i": "PUPPETEER_PRODUCT=chrome npm i --verb",
+    "i": "npm i --verb",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "PUPPETEER_PRODUCT=chrome electron-forge make",
-    "publish": "PUPPETEER_PRODUCT=chrome electron-forge publish"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "repository": "git@github.com:sh-tengfei/web-transform-pdf.git",
   "keywords": [
