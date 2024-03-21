@@ -1,5 +1,5 @@
 {
-  "name": "web-to-pdf",
+  "name": "PDF",
   "version": "1.0.0",
   "description": "A minimal Electron application",
   "main": "main.js",

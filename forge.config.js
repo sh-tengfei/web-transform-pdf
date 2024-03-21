@@ -4,14 +4,16 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     // asar: true,
-    // icon: "path/to/icon",
+    icon: "public/icon/icon",
     "ignore": [
       ".cache/chrome/",
       ".gitignore",
       "README.md",
       "yarn.lock"
     ],
-    "executableName": "webToPdf"
+    "executableName": "App",
+    extraResource: ['./files'],
+    name: 'PDF客户端'
   },
   rebuildConfig: {},
   makers: [
@@ -22,15 +24,17 @@ module.exports = {
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
+      iconUrl: './public/icon/icon',
+      setupIcon: './public/icon/icon',
     },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
-    },
+    // {
+    //   name: '@electron-forge/maker-deb',
+    //   config: {},
+    // },
+    // {
+    //   name: '@electron-forge/maker-rpm',
+    //   config: {},
+    // },
   ],
   plugins: [
     // {
