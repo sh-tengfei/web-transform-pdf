@@ -102,15 +102,14 @@ async function clickContrastSave(currentPage) {
   let prevContent = null
   let curContent = null
   do {
-    prevContent = await currentPage.content()
+    prevContent = (await currentPage.content()).replace(/\s+/ig, '')
     const pdf = await currentPage.pdf({ format: 'A4' });
     const donorPdfDoc = await PDFDocument.load(pdf);
     const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
     curPDF.addPage(copiedPage[0]);
     await currentPage.click('body')
     await currentPage.waitForNetworkIdle()
-    curContent = await currentPage.content()
-    console.log(prevContent, curContent, Date.now())
+    curContent = (await currentPage.content()).replace(/\s+/ig, '')
   } while(prevContent !== curContent);
   return curPDF
 }
@@ -142,7 +141,7 @@ async function handleSetCreatePdf(e, name) {
   // 清除配置 PDF数据
   curPDF = null
   curConfig = null
-  e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: path.join(__dirname, filepath), result })
+  e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: filepath, result })
 }
 
 async function handleCloseBrowser (e) {
