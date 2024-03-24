@@ -11,8 +11,6 @@ module.exports = {
       "README.md",
       "yarn.lock"
     ],
-    "executableName": "App",
-    extraResource: ['./files'],
     name: 'PDF客户端'
   },
   rebuildConfig: {},
