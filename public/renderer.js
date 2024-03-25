@@ -13,7 +13,11 @@ const App = {
         value: 'pdf',
         label: 'PDF'
       }],
-      sizes: [{
+      sizes: [
+      {
+        value: 'defalut',
+        label: '默认'
+      }, {
         value: 'Letter',
         label: 'Letter'
       }, {
@@ -67,7 +71,7 @@ const App = {
       formInline: {
         site: "",
         type: "pdf",
-        size: "A4"
+        size: "defalut"
       },
 
       existConfig: false,

@@ -84,32 +84,47 @@ async function createBrowser() {
 
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
+  curPDF = await PDFDocument.create()
   e.reply('config-done', await getCurrentData())
 }
 
 async function handleOpenBrowser (e) {
-  // if(curConfig?.site) {
-    await createBrowser(curConfig.site)
-    const pages = await browser.pages()
-    curPage = pages.pop();
-    await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
-    curPDF = await PDFDocument.create()
-    e.reply('open-done', await getCurrentData())
-  // }
+  await createBrowser(curConfig.site)
+  const pages = await browser.pages()
+  curPage = pages.pop();
+  await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
+  e.reply('open-done', await getCurrentData())
 }
 
 async function clickContrastSave(currentPage) {
   let prevContent = null
   let curContent = null
+  let page = 1
+  const size = await currentPage.evaluate(() => {
+    return {
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight
+    };
+  });
+
   do {
     prevContent = (await currentPage.content()).replace(/\s+/ig, '')
-    const pdf = await currentPage.pdf({ format: 'A4' });
+    let opt = { footerTemplate: `<div><span>当前页码：${page}</span></div>` }
+    if (curConfig.size === 'defalut') {
+      opt = {
+        ...size
+      }
+    } else {
+      opt.format = curConfig.size
+    }
+    const pdf = await currentPage.pdf(opt);
     const donorPdfDoc = await PDFDocument.load(pdf);
     const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
     curPDF.addPage(copiedPage[0]);
     await currentPage.click('body')
     await currentPage.waitForNetworkIdle()
     curContent = (await currentPage.content()).replace(/\s+/ig, '')
+    page++
   } while(prevContent !== curContent);
   return curPDF
 }
