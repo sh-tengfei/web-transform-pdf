@@ -7,6 +7,7 @@
  */
 
 const { contextBridge, ipcRenderer } = require('electron')
+
 let cb = null
 contextBridge.exposeInMainWorld('electronAPI', {
   send: (...args)=> {
