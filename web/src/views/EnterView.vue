@@ -39,6 +39,9 @@ main{
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
 }
 .title-text{
   text-align: center;
