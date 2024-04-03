@@ -1,17 +1,8 @@
 <template>
   <div class="app">
-    <div class="title">
-      <div class="title-value">设置抓取内容</div>
-      <div class="tips">
-        node:<span id="node-version"></span>;
-      </div>
-      <div class="tips">
-        chrome:<span id="chrome-version"></span>;
-      </div>
-      <div class="tips">
-        electron:<span id="electron-version"></span>;
-      </div>
-    </div>
+    <header class="header">
+      <el-button @click="back" type="pri">返回主页</el-button>
+    </header>
     <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
       <el-form-item label="开始抓取" prop="site">
         <el-input
@@ -69,8 +60,10 @@
 </template>
 <script>
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 export default {
   setup() {
+    const router = useRouter()
     const types = ref([{
       value: 'pdf',
       label: 'PDF'
@@ -227,8 +220,14 @@ export default {
       })
       window.electronAPI?.send('ready')
     })
+
+    function back() {
+      router.back()
+    }
   
     return {
+      back,
+
       types,
       sizes,
       rules,
@@ -264,6 +263,11 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+}
+.header{
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
 }
 .title{
   display: flex;
