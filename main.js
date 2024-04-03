@@ -9,7 +9,7 @@ const files = `${__dirname}/files/`
 function createWindow () {
   // Create base browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 900,
     height: 700,
     ignoreHTTPSErrors: true,
     alwaysOnTop: !true,
@@ -71,12 +71,14 @@ async function createBrowser() {
 
   browser.on('targetcreated', async (target) => {
     const pages = await browser.pages()
+    curPage = pages[pages.length -1]
     while (pages.length > 1) {
       const firstPage = pages.shift()
       firstPage.close()
-    }
-    if (curPage !== pages[0]) {
-      curPage = pages[0]
+      // await curPage.waitForNetworkIdle()
+      // await curPage.focus().catch((e)=>{
+      //   console.log('focus error', e)
+      // })
     }
   })
   return browser
@@ -85,6 +87,9 @@ async function createBrowser() {
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
   curPDF = await PDFDocument.create()
+  if (curPage) {
+    await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
+  }
   e.reply('config-done', await getCurrentData())
 }
 
@@ -109,11 +114,10 @@ async function clickContrastSave(currentPage) {
 
   do {
     prevContent = (await currentPage.content()).replace(/\s+/ig, '')
-    let opt = { footerTemplate: `<div><span>当前页码：${page}</span></div>` }
+    let opt = { footerTemplate: `<div style="font-size: 20px;color: #333;"><span>当前页码：${page}</span></div>`, displayHeaderFooter: true, }
     if (curConfig.size === 'defalut') {
-      opt = {
-        ...size
-      }
+      opt.width = size.width
+      opt.height = size.height
     } else {
       opt.format = curConfig.size
     }
@@ -121,8 +125,12 @@ async function clickContrastSave(currentPage) {
     const donorPdfDoc = await PDFDocument.load(pdf);
     const copiedPage = await curPDF.copyPages(donorPdfDoc, [0]); // Copy first page of first PDF
     curPDF.addPage(copiedPage[0]);
-    await currentPage.click('body')
-    await currentPage.waitForNetworkIdle()
+    await currentPage.click('body').catch((e)=>{
+      console.log('click error', e)
+    })
+    await currentPage.waitForNetworkIdle().catch((e)=>{
+      console.log('waitForNetworkIdle error', e)
+    })
     curContent = (await currentPage.content()).replace(/\s+/ig, '')
     page++
   } while(prevContent !== curContent);

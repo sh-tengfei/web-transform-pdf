@@ -45,10 +45,11 @@ main{
 }
 .title-text{
   text-align: center;
-  font-size: 50px;
+  font-size: 40px;
   color: #79bbff;
   margin: 0;
   margin-top: 80px;
+  margin-bottom: 20px;
   font-weight: 700;
 }
 main a {
@@ -62,7 +63,7 @@ main a {
   text-decoration: none;
   transition: all .3;
   color: #67C23A;
-  height: 500px;
+  height: 100%;
   background-color: #fff;
   &:hover{
     color: #409eff;

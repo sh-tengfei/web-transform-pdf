@@ -1,8 +1,9 @@
 <template>
   <div class="app">
     <header class="header">
-      <el-button @click="back" type="pri">返回主页</el-button>
+      <el-button @click="back" type="warning">返回主页</el-button>
     </header>
+    <div class="dashed" />
     <el-form :model="formInline" :rules="rules" ref="ruleFormRef" class="form-inline">
       <el-form-item label="开始抓取" prop="site">
         <el-input
@@ -142,6 +143,12 @@ export default {
     const ruleFormRef = ref(null)
 
     const onSendConfig = () => {
+      if(pdfNumber.value) {
+        pdfNumber.value = 0
+      }
+      if(fileName.value) {
+        fileName.value = null
+      }
       ruleFormRef.value.validate((valid) => {
         if (valid) {
           window.electronAPI.send('config', JSON.stringify(formInline.value))
@@ -187,35 +194,37 @@ export default {
       return operateIng.value || !isExistBrowser.value || !existConfig.value || pdfNumber.value > 0
     })
     const disableCreatedPdf = computed(() => {
-      return pdfNumber.value === 0 || operateIng.value || !existConfig.value || !isExistBrowser.value
+      return !pdfNumber.value || operateIng.value || !existConfig.value || !isExistBrowser.value
     })
     const disableClose = computed(() => {
       return !isExistBrowser.value || operateIng.value
     })
 
-    watch(()=> pdfPath, (val) => {
+    watch(()=>pdfPath.value, (val) => {
+      console.log(val)
       if (val) {
         const a = document.createElement('a')
         a.href = val
-        a.download = this.fileName
+        a.download = fileName.value
+        document.body.appendChild(a)
         a.click()
       }
     })
 
     onMounted(()=>{
       window.electronAPI?.ready((name, e) => {
-        const { pdfNumber, existBrowser, browserPages, fileName, path, existConfig } = e
-        this.pdfNumber = pdfNumber
-        this.isExistBrowser = existBrowser
-        this.browserPages = browserPages
-        this.existConfig = existConfig
-        this.operateIng = false
-        if (path) {
-          this.pdfPath = path
-          this.fileName = fileName
+        console.log(e)
+        pdfNumber.value = e.pdfNumber
+        isExistBrowser.value = e.existBrowser
+        browserPages.value = e.browserPages
+        existConfig.value = e.existConfig
+        operateIng.value = false
+        if (e.path) {
+          pdfPath.value = e.path
+          fileName.value = e.fileName
         } else {
-          this.pdfPath = null
-          this.fileName = null
+          pdfPath.value = null
+          fileName.value = null
         }
       })
       window.electronAPI?.send('ready')
@@ -306,5 +315,9 @@ export default {
 }
 .save-number{
   margin-left: 20px;
+}
+.dashed{
+  border-bottom: 1px solid #dcdfe6;
+  height: 1px;
 }
 </style>
