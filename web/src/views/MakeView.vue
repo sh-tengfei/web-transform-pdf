@@ -32,10 +32,10 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSendConfig" :disabled="disableStart">发送配置</el-button>
-        <el-button @click="onOpenBrower" :disabled="disableOpenBrower">打开浏览器</el-button>
+        <el-button type="warning" @click="onOpenBrower" :disabled="disableOpenBrower">打开浏览器</el-button>
         <el-button type="info" @click="onSavePdf" :disabled="disableSave">生成PDF</el-button>
         <el-button type="success" @click="showSaveName = true" :disabled="disableCreatedPdf">保存PDF</el-button>
-        <el-button type="warning" @click="onCloseBrowser" :disabled="disableClose">关闭浏览器</el-button>
+        <!-- <el-button type="warning" @click="onCloseBrowser" :disabled="disableClose">关闭浏览器</el-button> -->
       </el-form-item>
     </el-form>
     <el-form-item class="save-number" label="">
@@ -62,6 +62,7 @@
 <script>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 export default {
   setup() {
     const router = useRouter()
@@ -166,7 +167,7 @@ export default {
     }
     const onCreatedPdf = () => {
       if (!saveNameForm.value.saveName) {
-        return window.ElementPlus.ElMessageBox.alert('请输入文件名称')
+        return ElMessageBox.alert('请输入文件名称')
       }
       showSaveName.value = false
       operateIng.value = true
@@ -174,7 +175,7 @@ export default {
       saveNameForm.value.saveName = null
     }
     const onCloseBrowser = () => {
-      window.ElementPlus.ElMessageBox.confirm('确认关闭浏览器？', '提示', {
+      ElMessageBox.confirm('确认关闭浏览器？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -201,7 +202,6 @@ export default {
     })
 
     watch(()=>pdfPath.value, (val) => {
-      console.log(val)
       if (val) {
         const a = document.createElement('a')
         a.href = val

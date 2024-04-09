@@ -87,9 +87,6 @@ async function createBrowser() {
 async function handleSetConfig (e, value) {
   curConfig = JSON.parse(value)
   curPDF = await PDFDocument.create()
-  if (curPage) {
-    await curPage.goto(curConfig.site, { waitUntil: 'networkidle2' })
-  }
   e.reply('config-done', await getCurrentData())
 }
 
@@ -165,6 +162,7 @@ async function handleSetCreatePdf(e, name) {
   curPDF = null
   curConfig = null
   e.reply('create-done', { ...await getCurrentData(), fileName: filename, path: filepath, result })
+  handleCloseBrowser(e)
 }
 
 async function handleCloseBrowser (e) {
