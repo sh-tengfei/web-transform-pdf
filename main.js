@@ -5,6 +5,11 @@ const puppeteer = require('puppeteer');
 const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
 const files = `${__dirname}/files/`
+let isDev = false 
+if (process.env.PWD && process.env.PWD.includes) {
+  isDev = true
+}
+// const isDev = process.env.PWD.includes('web-transform-pdf')
 
 function createWindow () {
   // Create base browser window.
@@ -29,7 +34,7 @@ function createWindow () {
   }
 
   // and load the index.html of the app.
-  mainWindow.loadURL('http://localhost:8081/')
+  mainWindow.loadURL(isDev ? 'http://localhost:8081/': 'web/dist/index.html')
   // mainWindow.loadFile('public/index.html')
 
   // Open the DevTools.
