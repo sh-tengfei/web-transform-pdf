@@ -6,10 +6,9 @@ const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
 const files = `${__dirname}/files/`
 let isDev = false 
-if (process.env.PWD && process.env.PWD.includes) {
+if (process && process.env && process.env.PWD && process.env.PWD.includes && process.env.PWD.includes.includes('web-transform-pdf')) {
   isDev = true
 }
-// const isDev = process.env.PWD.includes('web-transform-pdf')
 
 function createWindow () {
   // Create base browser window.
@@ -33,9 +32,12 @@ function createWindow () {
     console.log(error)
   }
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(isDev ? 'http://localhost:8081/': 'web/dist/index.html')
-  // mainWindow.loadFile('public/index.html')
+  if (isDev) {
+    // and load the index.html of the app.
+    mainWindow.loadURL('http://localhost:8081/')
+  } else {
+    mainWindow.loadFile('web/dist/index.html')
+  }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
