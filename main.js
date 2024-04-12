@@ -5,8 +5,8 @@ const puppeteer = require('puppeteer');
 const { PDFDocument } = require('pdf-lib')
 const fs = require('fs');
 const files = `${__dirname}/files/`
-let isDev = false 
-if (process && process.env && process.env.PWD && process.env.PWD.includes && process.env.PWD.includes.includes('web-transform-pdf')) {
+let isDev = false
+if (process && process.env && process.env.PWD && process.env.PWD.includes && process.env.PWD.includes('web-transform-pdf')) {
   isDev = true
 }
 
