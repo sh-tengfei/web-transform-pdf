@@ -6,10 +6,16 @@ module.exports = {
     // asar: true,
     icon: "public/icon/icon",
     "ignore": [
-      ".cache/chrome/",
+      // ".cache/puppeteer/",
       ".gitignore",
       "README.md",
-      "yarn.lock"
+      "yarn.lock",
+      ".github",
+      ".vscode",
+      "forge.config.js",
+      "web/node_modules",
+      "web/src",
+      "web/public"
     ],
     name: 'PDF客户端'
   },

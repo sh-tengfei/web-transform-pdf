@@ -118,7 +118,7 @@ async function clickContrastSave(currentPage) {
 
   do {
     prevContent = (await currentPage.content()).replace(/\s+/ig, '')
-    let opt = { footerTemplate: `<div style="font-size: 20px;color: #333;"><span>当前页码：${page}</span></div>`, displayHeaderFooter: true, }
+    let opt = { footerTemplate: `<div style="font-size: 20px;color: #333;margin-left: 20px;"><span>页码：${page}</span></div>`, displayHeaderFooter: true, }
     if (curConfig.size === 'defalut') {
       opt.width = size.width
       opt.height = size.height
