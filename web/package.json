@@ -43,7 +43,8 @@
     "rules": {
       "vue/no-unused-vars": "off",
       "no-debugger": "off",
-      "no-unused-vars": "off"
+      "no-unused-vars": "off",
+      "vue/no-deprecated-v-on-native-modifier": "off"
     }
   },
   "browserslist": [

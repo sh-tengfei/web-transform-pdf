@@ -45,8 +45,8 @@
     <el-form-item class="save-number" label="文件名称" v-if="fileName">
       <el-tag type="info">{{fileName}}</el-tag>
     </el-form-item>
-    <el-dialog v-model="showSaveName" title="保存文件名称" :close-on-click-modal="false" :before-close="beforeClose">
-      <el-form :model="saveNameForm">
+    <el-dialog v-model="showSaveName" title="保存文件名称" :close-on-click-modal="false">
+      <el-form :model="saveNameForm" @submit.native.prevent>
         <el-form-item label="文件名称">
           <el-input v-model="saveNameForm.saveName" placeholder="请输入保存文件名称" autocomplete="off" />
         </el-form-item>
