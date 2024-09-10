@@ -35,6 +35,6 @@ Note: If you're using Linux Bash for Windows, [see this guide](https://www.howto
 - [electronjs.org/docs](https://electronjs.org/docs) - all of Electron's documentation
 - [Electron Fiddle](https://electronjs.org/fiddle) - Electron Fiddle, an app to test small Electron experiments
 
-## License
+## Introduce
 
-[CC0 1.0 (Public Domain)](LICENSE.md)
+[中文版使用说明](Introduce.md)
