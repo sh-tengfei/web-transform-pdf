@@ -32,7 +32,7 @@
     "electron": "^29.1.4"
   },
   "dependencies": {
-    "@electron-forge/plugin-fuses": "^7.3.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
     "apify": "^3.1.13",
     "electron-squirrel-startup": "^1.0.0",
     "pdf-lib": "^1.17.1",
