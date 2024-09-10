@@ -34,7 +34,7 @@
   "dependencies": {
     "@electron-forge/plugin-fuses": "^7.3.0",
     "apify": "^3.1.13",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "pdf-lib": "^1.17.1",
     "puppeteer": "^22.6.3",
     "stream": "0.0.2",
