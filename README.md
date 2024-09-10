@@ -34,6 +34,7 @@ Note: If you're using Linux Bash for Windows, [see this guide](https://www.howto
 
 - [electronjs.org/docs](https://electronjs.org/docs) - all of Electron's documentation
 - [Electron Fiddle](https://electronjs.org/fiddle) - Electron Fiddle, an app to test small Electron experiments
+- [Puppeteer](https://pptr.dev/) - Puppeteer is a JavaScript library which provides a high-level API to control Chrome or Firefox over the DevTools Protocol or WebDriver BiDi. Puppeteer runs in the headless (no visible UI) by default
 
 ## Introduce
 
